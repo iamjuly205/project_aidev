@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Language - Ngôn Ngữ Ký Hiệu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+   
+</head>
+<body>
+    <header class="header">
+        <h1 class="logo" id="logoHome" data-tooltip="Về trang chủ">SIGN LANGUAGE</h1>
+        <div class="header-controls">
+            <button class="icon-btn theme-toggle" id="themeToggle" data-tooltip="Chế độ sáng - Click để chuyển sang chế độ tối">🌟</button>
+            <button class="icon-btn language-toggle" id="languageToggle" data-tooltip="Tiếng Việt (VN) - Click để chuyển sang English">🌐</button>
+            <button class="btn btn-login" data-translate="login">Đăng Nhập</button>
+            <button class="btn btn-register" data-translate="register">Đăng Ký</button>
+        </div>
+    </header>
+    <div id="homeWrapper">
+        <!-- Hero Section -->
+        <section class="hero-section full-screen" id="homePage">
+            <div class="hero-content">
+                <h1 class="hero-title" data-translate="hero-title">Công cụ hỗ trợ nhận diện ngôn ngữ ký hiệu</h1>
+                <p class="hero-description" data-translate="hero-description">Khám phá giải pháp AI tiên tiến giúp chuyển đổi ngôn ngữ ký hiệu thành văn bản, giọng nói và ngược lại một cách dễ dàng.</p>
+                <button class="btn btn-primary" id="startBtn" data-translate="start-btn">Bắt Đầu Ngay</button>
+            </div>
+        </section>
+            
+
+        <!-- Video Introduction Section -->
+        <section class="video-section">
+            <h2 class="section-title" data-translate="video-section-title">Video Giới Thiệu</h2>
+            <p class="section-description" data-translate="video-section-description">Xem các video hướng dẫn để hiểu cách sử dụng công cụ nhận diện ngôn ngữ ký hiệu của chúng tôi.</p>
+            <div class="video-card-list">
+                <!-- Video Card -->
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        <img src="../Image/HDSD.jpg" alt="Video Thumbnail">
+                        <span class="video-duration">3:45</span>
+                    </div>
+                    <h3 class="video-title">Hướng Dẫn Cơ Bản</h3>
+                    <p class="video-description">Tìm hiểu cách bắt đầu với công cụ nhận diện ngôn ngữ ký hiệu.</p>
+                </div>
+                <!-- Modal Video -->
+                <div id="videoModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-btn">&times;</span>
+                        <video id="modalVideo" controls autoplay>
+                            <source src="" type="video/mp4">
+                            Trình duyệt của bạn không hỗ trợ video.
+                        </video>
+                    </div>
+                </div>
+
+                <!-- Video Card -->
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        <img src="../Image/CDKH.jpg" alt="Video Thumbnail">
+                        <span class="video-duration">5:12</span>
+                    </div>
+                    <h3 class="video-title">Chuyển Đổi Ký Hiệu</h3>
+                    <p class="video-description">Khám phá cách chuyển đổi ký hiệu thành văn bản và giọng nói.</p>
+                </div>
+                <!-- Modal Video -->
+                <div id="videoModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-btn">&times;</span>
+                        <video id="modalVideo" controls autoplay>
+                            <source src="../Video/Detect_Signlanguage.mp4" type="video/mp4">
+                            Trình duyệt của bạn không hỗ trợ video.
+                        </video>
+                    </div>
+                </div>
+
+                <!-- Video Card -->
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        <img src="../Image/MSD.jpg" alt="Video Thumbnail">
+                        <span class="video-duration">4:30</span>
+                    </div>
+                    <h3 class="video-title">Mẹo Sử dụng</h3>
+                    <p class="video-description">Các mẹo để tối ưu hóa trải nghiệm sử dụng công cụ.</p>
+                </div>
+            </div>
+        </section>
+                <!-- Modal Video -->
+                <div id="videoModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-btn">&times;</span>
+                        <video id="modalVideo" controls autoplay>
+                            <source src="" type="video/mp4">
+                            Trình duyệt của bạn không hỗ trợ video.
+                        </video>
+                    </div>
+                </div>
+
+        <!-- News & Articles Section -->
+        <section class="news-section">
+            <h2 class="section-title" data-translate="news-section-title">Tin Tức & Bài Viết</h2>
+            <p class="section-description" data-translate="news-section-description">Cập nhật những thông tin mới nhất và các bài viết hữu ích về ngôn ngữ ký hiệu và công nghệ AI.</p>
+            <div class="news-grid">
+                <a href="https://vinbigdata.com/kham-pha/vai-tro-cua-ai-trong-cai-thien-doi-song-cua-nguoi-khuyet-tat.html" target="_blank" class="news-card">
+                    <img src="../Image/VTAI.jpg" alt="News Image">
+                    <h3 class="news-title">Tiến Bộ Trong AI</h3>
+                    <p class="news-description">Vai trò của AI trong cải thiện đời sống của người khuyết tật.</p>
+                </a>
+                <a href="https://thongke.cesti.gov.vn/an-pham-thong-ke/thong-tin-chuyen-de-khoa-hoc-cong-nghe-va-doi-moi-sang-tao/1171-ung-dung-cac-cong-nghe-moi-ho-tro-day-hoc-cho-nguoi-khiem-thi" target="_blank" class="news-card">
+                    <img src="../Image/HNNKH.jpg" alt="News Image">
+                    <h3 class="news-title">Học Ngôn Ngữ Ký Hiệu</h3>
+                    <p class="news-description">Ứng dụng các công nghệ mới, hỗ trợ dạy học cho người khiếm thị.</p>
+                </a>
+                <a href="https://abilitynet-org-uk.translate.goog/news-blogs/9-useful-apps-people-who-are-ddeaf-or-have-hearing-loss?_x_tr_sl=en&_x_tr_tl=vi&_x_tr_hl=vi&_x_tr_pto=tc" target="_blank" class="news-card">
+                    <img src="../Image/CNM.webp" alt="News Image">
+                    <h3 class="news-title">Công Nghệ Mới</h3>
+                    <p class="news-description">Tìm hiểu về các công nghệ mới hỗ trợ người khiếm thính.</p>
+                </a>
+                <a href="https://moh.gov.vn/tin-tong-hop/-/asset_publisher/k206Q9qkZOqn/content/viet-nam-co-khoang-2-5-trieu-nguoi-khuyet-tat-nghe-noi" target="_blank" class="news-card">
+                    <img src="../Image/TKe.jpg" alt="News Image">
+                    <h3 class="news-title">Thống kê về người khiếm thính</h3>
+                    <p class="news-description">Theo ước tính của Tổ chức Y tế thế giới, có khoảng 5% dân số, tương đương với 360 triệu người trên toàn thế giới bị khiếm thính. Việt Nam là nước thuộc khu vực có tỷ lệ giảm thính lực cao trên thế giới.</p>
+                </a>
+                <a href="https://www.facebook.com/daitruyenhinhsignus" target="_blank" class="news-card">
+                    <img src="../Image/SignUS.jpg" alt="News Image">
+                    <h3 class="news-title">SignUs - Một Ký Hiệu, Triệu Kết Nối </h3>
+                    <p class="news-description">Dự án truyền thông được thực hiện bởi sinh viên FPT với mong muốn kết nối cộng đồng người Nghe và người Điếc thông qua ngôn ngữ ký hiệu.</p>
+                </a>
+                <a href="https://www.facebook.com/groups/352903388885968" target="_blank" class="news-card">
+                    <img src="../Image/CLB.jpg" alt="News Image">
+                    <h3 class="news-title">Câu lạc bộ giao lưu, chia sẻ ngôn ngữ ký hiệu</h3>
+                    <p class="news-description">Nơi giao lưu ngôn ngữ ký hiệu tránh khỏi bị quên vốn từ và tìm hiểu văn hoá người khiếm thính.</p>
+                </a>
+            </div>
+        </section>
+    </div>
+    <!-- Dashboard Content (Hidden by default) -->
+    <div class="dashboard-main" id="dashboardPage" style="display: none;">
+        <div class="dashboard-layout">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-tab active" data-tab="text-to-speech">
+                    <i class="fas fa-volume-up"></i> Văn bản thành giọng nói
+                </div>
+                <div class="sidebar-tab" data-tab="speech-to-text">
+                    <i class="fas fa-microphone"></i> Giọng nói thành văn bản
+                </div>
+                <div class="sidebar-tab" data-tab="sign-to-text">
+                    <i class="fas fa-hand-paper"></i> Ký hiệu thành văn bản
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="content-area">
+                <!-- Text to Speech Tab -->
+                <div class="tab-content active" id="text-to-speech">
+                    <div class="input-section">
+                        <h3>Nhập văn bản cần chuyển đổi:</h3>
+                        <div class="text-input-container">
+                            <textarea class="text-input" id="textInput" placeholder="Nhập văn bản của bạn tại đây..."></textarea>
+                            <button class="send-btn" id="textToSpeechBtn">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Voice and Language Options -->
+                        <div class="tts-options">
+                            <div class="option-group">
+                                <label for="genderSelect">Giới tính:</label>
+                                <select id="genderSelect" class="option-select">
+                                    <option value="female">Nữ</option>
+                                    <option value="male">Nam</option>
+                                </select>
+                            </div>
+                            <div class="option-group">
+                                <label for="languageSelect">Ngôn ngữ:</label>
+                                <select id="languageSelect" class="option-select">
+                                    <option value="vi">Tiếng Việt</option>
+                                    <option value="en">English</option>
+                                </select>
+                            </div>
+                            <div class="option-group">
+                                <label for="voiceSelect">Giọng người đọc:</label>
+                                <select id="voiceSelect" class="option-select">
+                                    <option value="">Đang tải...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="output-section">
+                        <h3>Âm thanh được tạo:</h3>
+                        <div class="audio-player-container">
+                            <div class="audio-player">
+                                <div class="audio-icon-large">🔊</div>
+                                <div class="audio-info">
+                                    <p class="audio-status">Âm thanh sẽ được tạo ra tại đây</p>
+                                    <div class="audio-controls-panel" style="display: none;">
+                                        <button class="control-btn play-btn" id="playBtn">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                        <div class="progress-container">
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" id="progressFill"></div>
+                                            </div>
+                                            <div class="time-display">
+                                                <span id="currentTime">0:00</span> / <span id="totalTime">0:00</span>
+                                            </div>
+                                        </div>
+                                        <button class="control-btn download-audio-btn" id="downloadAudioBtn">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Speech to Text Tab -->
+                <div class="tab-content" id="speech-to-text">
+                    <div class="input-section">
+                        <h3>Ghi âm giọng nói:</h3>
+                        <div class="recording-container">
+                            <div class="microphone-area">
+                                <div class="mic-icon-container" id="micContainer">
+                                    <i class="fas fa-microphone mic-icon" id="micIcon"></i>
+                                    <div class="recording-pulse" id="recordingPulse" style="display: none;"></div>
+                                </div>
+                                <p class="recording-status" id="recordingStatus">Nhấn vào microphone để bắt đầu ghi âm</p>
+                                <div class="recording-timer" id="recordingTimer" style="display: none;">
+                                    <span id="timerDisplay">00:00</span>
+                                </div>
+                            </div>
+                            
+                            <button class="convert-btn" id="convertSpeechBtn" style="display: none;">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="output-section">
+                        <h3>Văn bản được chuyển đổi:</h3>
+                        <div class="text-output-container">
+                            <textarea class="text-input" id="speechToTextOutput" placeholder="Văn bản sẽ xuất hiện tại đây..." readonly></textarea>
+                            <button class="download-text-btn" id="downloadTextBtn" style="display: none;">
+                                <i class="fas fa-download"></i>
+                                <span>Tải xuống văn bản</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sign to Text Tab -->
+                <div class="tab-content" id="sign-to-text">
+                    <div class="input-section">
+                        <h3>Quay video ký hiệu:</h3>
+                        <div class="audio-controls">
+                            <div class="audio-icon">📹</div>
+                            <p>Nhấn để bắt đầu quay video</p>
+                            <button class="download-btn">Bắt đầu quay</button>
+                        </div>
+                    </div>
+                    <div class="output-section">
+                        <h3>Văn bản được nhận diện:</h3>
+                        <textarea class="text-input" placeholder="Văn bản nhận diện sẽ xuất hiện tại đây..." readonly></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modern Login/Register Popup -->
+    <div class="auth-modal" id="authModal" style="display: none;">
+        <div class="auth-overlay" id="authOverlay"></div>
+        <div class="auth-container" id="container">
+            <div class="form-container sign-up">
+                <form id="registerForm">
+                    <h1 data-translate="create-account">Tạo Tài Khoản</h1>
+                    <div class="social-icons">
+                        <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
+                        <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
+                        <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
+                    </div>
+                    <span data-translate="or-email-register">hoặc sử dụng email để đăng ký</span>
+                    <input type="text" id="registerName" data-translate-placeholder="name" placeholder="Họ và tên" required>
+                    <input type="email" id="registerEmail" data-translate-placeholder="email" placeholder="Email" required>
+                    <input type="password" id="registerPassword" data-translate-placeholder="password" placeholder="Mật khẩu" required>
+                    <div class="form-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="agreeTerms" required>
+                            <span><span data-translate="agree-terms">Tôi đồng ý với</span> <a href="#" data-translate="terms-of-use">điều khoản sử dụng</a></span>
+                        </label>
+                    </div>
+                    <button type="submit" data-translate="register">Đăng Ký</button>
+                </form>
+            </div>
+            <div class="form-container sign-in">
+                <form id="loginForm">
+                    <h1 data-translate="login">Đăng Nhập</h1>
+                    <div class="social-icons">
+                        <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
+                        <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
+                        <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
+                    </div>
+                    <span data-translate="or-email-login">hoặc sử dụng email và mật khẩu</span>
+                    <input type="email" id="loginEmail" data-translate-placeholder="email" placeholder="Email" required>
+                    <input type="password" id="loginPassword" data-translate-placeholder="password" placeholder="Mật khẩu" required>
+                    <div class="form-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="rememberMe">
+                            <span data-translate="remember-me">Ghi nhớ đăng nhập</span>
+                        </label>
+                        <a href="#" class="forgot-password" data-translate="forgot-password">Quên mật khẩu?</a>
+                    </div>
+                    <button type="submit" data-translate="login">Đăng Nhập</button>
+                </form>
+            </div>
+            <div class="toggle-container">
+                <div class="toggle">
+                    <div class="toggle-panel toggle-left">
+                        <h1 data-translate="welcome-back">Chào Mừng Trở Lại!</h1>
+                        <p data-translate="welcome-back-desc">Nhập thông tin cá nhân để sử dụng tất cả tính năng của trang web</p>
+                        <button class="hidden" id="login" data-translate="login">Đăng Nhập</button>
+                    </div>
+                    <div class="toggle-panel toggle-right">
+                        <h1 data-translate="hello">Xin Chào!</h1>
+                        <p data-translate="hello-desc">Đăng ký với thông tin cá nhân để sử dụng tất cả tính năng của trang web</p>
+                        <button class="hidden" id="register" data-translate="register">Đăng Ký</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="footer">
+        <div class="footer-column">
+            <div class="footer-logo">AI19C</div>
+            <p>Công cụ AI tiên tiến hỗ trợ nhận diện ngôn ngữ ký hiệu, giúp kết nối cộng đồng người khiếm thính với thế giới xung quanh.</p>
+            <div class="social-icons">
+                <a href="#" class="social-icon"><img src="../Image/facebook.png" alt="Facebook"></a>
+                <a href="#" class="social-icon"><img src="../Image/instagram.png" alt="Instagram"></a>
+                <a href="#" class="social-icon"><img src="../Image/youtube.png" alt="Youtube"></a>
+            </div>
+        </div>
+        <div class="footer-column">
+            <h3>Sản phẩm</h3>
+            <ul>
+                <li><a href="#">Tính năng</a></li>
+                <li><a href="#">Giải pháp</a></li>
+                <li><a href="#">API</a></li>
+                <li><a href="#">Ứng dụng di động</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h3>Hỗ trợ</h3>
+            <ul>
+                <li><a href="#">Trung tâm hỗ trợ</a></li>
+                <li><a href="#">Liên hệ</a></li>
+                <li><a href="#">FAQ</a></li>
+                <li><a href="#">Cộng đồng</a></li>
+            </ul>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 Công cụ hỗ trợ nhận diện ngôn ngữ ký hiệu. Tất cả quyền được bảo lưu.</p>
+                <div class="footer-links">
+                <a href="#">Chính sách bảo mật</a>
+                <a href="#">Điều khoản sử dụng</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPT THỐNG NHẤT DUY NHẤT -->
+    <script src="script.js"></script>
+</body>
+</html>

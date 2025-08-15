@@ -1,0 +1,50 @@
+# Requirements cho dự án Sign Language Recognition Tool
+# Cài đặt: pip install -r requirements.txt
+
+# ===== WEB FRAMEWORK =====
+Flask==2.3.3
+Flask-CORS==4.0.0
+Werkzeug>=2.3.7
+
+# ===== GOOGLE APIS =====
+# Text-to-Speech cơ bản (miễn phí)
+gTTS==2.3.2
+
+# Google Cloud APIs (nâng cao - cần Service Account)
+google-cloud-texttospeech==2.14.1
+google-cloud-speech==2.21.0
+google-auth==2.23.3
+google-auth-oauthlib==1.0.0
+google-auth-httplib2==0.1.1
+
+# ===== SPEECH RECOGNITION =====
+SpeechRecognition==3.10.0
+pyaudio==0.2.11
+
+# ===== AUDIO PROCESSING =====
+pydub==0.25.1
+
+# ===== TEXT-TO-SPEECH OFFLINE =====
+pyttsx3==2.90
+
+# ===== UTILITIES =====
+requests==2.31.0
+python-dotenv==1.0.0
+
+# ===== DEPENDENCIES =====
+Jinja2>=3.1.2
+itsdangerous>=2.1.2
+click>=8.1.3
+blinker>=1.6.2
+charset-normalizer>=2.0.0
+idna>=2.5
+urllib3>=1.21.1
+certifi>=2017.4.17
+colorama
+MarkupSafe>=2.0
+
+# ===== AUDIO CODECS (cho pydub) =====
+# Lưu ý: Có thể cần cài đặt FFmpeg riêng cho một số định dạng âm thanh
+# Windows: choco install ffmpeg
+# macOS: brew install ffmpeg
+# Ubuntu: sudo apt install ffmpeg
