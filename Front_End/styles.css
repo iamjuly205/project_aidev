@@ -621,7 +621,7 @@ body.dark-theme h2.section-title {
 }
 
 .auth-container button {
-    background-color: #4ca771;
+    background-color: #1E8579;
     color: #fff;
     font-size: 12px;
     padding: 10px 45px;
@@ -636,7 +636,12 @@ body.dark-theme h2.section-title {
 
 .auth-container button.hidden {
     background-color: transparent;
-    border-color: #fff;
+    border-color: #E0F7F5;
+}
+
+.auth-container button.hidden:hover {
+    background-color: #E0F7F5; /* khi hover thì nền đổi sang màu viền */
+    color: #1E8579;            /* chữ đổi sang xanh đậm */
 }
 
 .auth-container form {
@@ -707,7 +712,7 @@ body.dark-theme h2.section-title {
 }
 
 .social-icons a {
-    border: 1px solid #ccc;
+    border: 1px solid #B2E3DE; /* đổi viền gần tone xanh */
     border-radius: 20%;
     display: inline-flex;
     justify-content: center;
@@ -715,6 +720,15 @@ body.dark-theme h2.section-title {
     margin: 0 3px;
     width: 40px;
     height: 40px;
+    color: #555;               /* màu icon mặc định */
+    font-size: 18px;
+    transition: all 0.3s ease; /* hiệu ứng mượt */
+}
+
+.social-icons a:hover {
+    background-color: #E0F7F5; /* nền xanh nhạt khi hover */
+    color: #1E8579;            /* icon xanh đậm khi hover */
+    border-color: #E0F7F5;     /* viền đổi theo nền hover */
 }
 
 .toggle-container {
@@ -735,9 +749,10 @@ body.dark-theme h2.section-title {
 }
 
 .toggle {
-    background-color: #4ca771;
+    background-color: linear-gradient(135deg, #2BB5A8, #1E8579);
     height: 100%;
-    background: #4ca771;
+    background: linear-gradient(135deg, #2BB5A8, #1E8579);
+;
     color: #fff;
     position: relative;
     left: -100%;
@@ -1064,7 +1079,7 @@ body.dark-theme .social-icons a:hover {
     transition: all 0.3s ease;
     padding: 20px;
     border-radius: 50%;
-/*    background: #f8f9fa;*/
+/*    background: #f8f9fa; */
     
 }
 
@@ -1195,8 +1210,8 @@ body.dark-theme .social-icons a:hover {
     right: 0;
     z-index: 1000;
     
-  /*  backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1); */
+ /*   backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);*/
 }
 
 .logo {
@@ -1651,7 +1666,6 @@ body {
 .footer {
     flex-shrink: 0;
 }
-
 
 /* Bỏ gạch chân cho link trong phần tin tức */
 .news-grid a {
