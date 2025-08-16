@@ -950,11 +950,13 @@ function updateUIForLoggedInUser() {
         // Cập nhật nút đăng nhập để hiển thị tên người dùng
         const greeting = currentLanguage === 'vi' ? `Xin chào, ${currentUser.name}` : `Hello, ${currentUser.name}`;
         headerLoginBtn.textContent = greeting;
+        headerLoginBtn.style.background = '#4ecdc4';
         
 
         // Cập nhật nút đăng ký thành đăng xuất
         const logoutText = currentLanguage === 'vi' ? 'Đăng Xuất' : 'Logout';
         headerRegisterBtn.textContent = logoutText;
+        headerRegisterBtn.style.background = '#ff6b6b';
         
 
         // Xóa event listeners cũ và thêm mới
