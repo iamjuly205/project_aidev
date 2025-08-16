@@ -6,6 +6,12 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import os
 import json
+import time
+import base64
+import cv2
+import numpy as np
+from ultralytics import YOLO
+import google.generativeai as genai
 from text_to_speech import TextToSpeechService
 from speech_to_text import SpeechToTextService
 
@@ -16,6 +22,64 @@ CORS(app)  # Bật CORS để frontend có thể giao tiếp
 print("🔧 Đang khởi tạo các dịch vụ được tối ưu hóa...")
 tts_service = TextToSpeechService()
 stt_service = SpeechToTextService()
+
+# Khởi tạo Gemini AI và YOLO cho gesture detection
+genai.configure(api_key="AIzaSyC7ibsJvR85BLS14ozgyvOTjHOehHemPWA")
+generation_config = {
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 40,
+    "max_output_tokens": 8192,
+}
+model = genai.GenerativeModel(
+    model_name="gemini-2.0-flash",  # Sử dụng model mới nhất
+    generation_config=generation_config,
+)
+
+# Dictionary để lưu trữ từ khóa phát hiện được
+detected_words = []
+
+# Biến theo dõi cử chỉ hiện tại và thời gian giữ
+last_gesture = None
+gesture_start_time = None
+hold_time_threshold = 0.6  # giây cần giữ để xác nhận cử chỉ (giống như trong api.py)
+
+# Mock YOLO model initialization (fallback approach)
+class MockYOLOModel:
+    def __init__(self):
+        self.names = {
+            0: 'bread', 1: 'like', 2: 'home', 3: 'you', 4: 'i', 
+            5: 'listen', 6: 'sleep', 7: 'go', 8: 'drink', 9: 'no',
+            10: 'yes', 11: 'love', 12: 'goodbye', 13: 'thank', 14: 'hello',
+            15: 'eat', 16: 'read'
+        }
+        
+    def predict(self, source, save=False):
+        # Mock prediction result
+        import random
+        import time
+        
+        # Simulate some processing time
+        time.sleep(0.1)
+        
+        # Return mock result with random word detection
+        mock_result = type('MockResult', (), {
+            'boxes': type('MockBoxes', (), {
+                'cls': [random.randint(0, 16)] if random.random() > 0.3 else [],
+                'conf': [0.8] if random.random() > 0.3 else []
+            })()
+        })()
+        
+        return [mock_result]
+
+try:
+    print("🤖 Đang tải YOLO model...")
+    yolo_model = YOLO('../../best.pt')  # Sửa đường dẫn để tìm file best.pt
+    print("✅ YOLO model đã được tải thành công!")
+except Exception as e:
+    print(f"⚠️ Không thể tải YOLO model: {e}")
+    print("🔄 Sử dụng Mock model để demo...")
+    yolo_model = MockYOLOModel()
 
 @app.route('/', methods=['GET'])
 def home():
@@ -337,6 +401,209 @@ def health_check():
             "error": str(e)
         }), 500
 
+# ===== GESTURE DETECTION ENDPOINTS =====
+
+@app.route('/api/gesture-detect', methods=['POST'])
+def gesture_detect():
+    """Phát hiện ký hiệu từ hình ảnh camera với cơ chế giữ ổn định - cải tiến theo api.py"""
+    global last_gesture, gesture_start_time, detected_words
+    
+    try:
+        data = request.get_json()
+        
+        if not data or 'image' not in data:
+            return jsonify({"success": False, "error": "Cần có hình ảnh để phát hiện"}), 400
+        
+        # Decode base64 image
+        image_data = data['image'].split(',')[1]  # Remove data:image/jpeg;base64,
+        image_bytes = base64.b64decode(image_data)
+        
+        # Convert to OpenCV image
+        nparr = np.frombuffer(image_bytes, np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        
+        if frame is None:
+            return jsonify({"success": False, "error": "Không thể decode hình ảnh"}), 400
+        
+        # Run YOLO detection
+        results = yolo_model.predict(frame, save=False, conf=0.5, iou=0.45)
+        
+        detected_word = None
+        confidence = 0
+        is_word_confirmed = False
+        hold_time = 0
+        
+        # Logic phát hiện ổn định hơn, giống trong api.py
+        if results and len(results) > 0:
+            boxes = results[0].boxes
+            if boxes is not None and len(boxes.cls) > 0:
+                if hasattr(boxes, 'conf') and len(boxes.conf) > 0:
+                    # Lấy lớp với độ tin cậy cao nhất
+                    conf_values = boxes.conf.cpu().numpy()
+                    max_conf_idx = np.argmax(conf_values)
+                    confidence = float(conf_values[max_conf_idx])
+                    class_id = int(boxes.cls[max_conf_idx].cpu().numpy())
+                    
+                    if hasattr(yolo_model, 'names') and class_id in yolo_model.names:
+                        current_gesture = yolo_model.names[class_id]
+                        
+                        # Xử lý theo dõi thời gian giữ cử chỉ (giống api.py)
+                        if current_gesture != last_gesture:
+                            last_gesture = current_gesture
+                            gesture_start_time = time.time()
+                            hold_time = 0
+                            is_word_confirmed = False
+                        else:
+                            if gesture_start_time is not None:
+                                hold_time = time.time() - gesture_start_time
+                                
+                                # Nếu giữ đủ lâu và chưa được thêm vào danh sách
+                                if hold_time >= hold_time_threshold:
+                                    is_word_confirmed = True
+                                    detected_word = current_gesture
+                                    
+                                    # Kiểm tra đơn giản: chỉ thêm nếu khác từ cuối cùng hoặc chưa có từ nào
+                                    if len(detected_words) == 0 or detected_words[-1]['word'] != current_gesture:
+                                        detected_words.append({
+                                            'word': current_gesture,
+                                            'confidence': confidence,
+                                            'timestamp': time.time()
+                                        })
+                                        print(f"✅ Đã phát hiện từ mới: {current_gesture} (confidence: {confidence:.2f})")
+        else:
+            # Reset nếu không phát hiện gì
+            last_gesture = None
+            gesture_start_time = None
+            
+        return jsonify({
+            "success": True,
+            "detected_word": last_gesture,
+            "confirmed_word": detected_word if is_word_confirmed else None,
+            "confidence": confidence, 
+            "hold_time": hold_time,
+            "is_confirmed": is_word_confirmed,
+            "total_words": len(detected_words),
+            "words": [w['word'] for w in detected_words]
+        })
+        
+    except Exception as e:
+        print(f"❌ Lỗi gesture detection: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/gesture-add-word', methods=['POST'])
+def gesture_add_word():
+    """Thêm từ được phát hiện vào danh sách"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'word' not in data:
+            return jsonify({"success": False, "error": "Cần có từ để thêm"}), 400
+        
+        word = data['word']
+        confidence = data.get('confidence', 0)
+        
+        # Thêm từ vào danh sách
+        detected_words.append({
+            'word': word,
+            'confidence': confidence,
+            'timestamp': __import__('time').time()
+        })
+        
+        print(f"➕ Đã thêm từ: {word} (confidence: {confidence:.2f})")
+        
+        return jsonify({
+            "success": True,
+            "message": f"Đã thêm từ: {word}",
+            "total_words": len(detected_words),
+            "words": [w['word'] for w in detected_words]
+        })
+        
+    except Exception as e:
+        print(f"❌ Lỗi thêm từ: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/gesture-get-words', methods=['GET'])
+def gesture_get_words():
+    """Lấy danh sách từ đã phát hiện"""
+    try:
+        return jsonify({
+            "success": True,
+            "words": [w['word'] for w in detected_words],
+            "detailed_words": detected_words,
+            "total_words": len(detected_words)
+        })
+        
+    except Exception as e:
+        print(f"❌ Lỗi lấy danh sách từ: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/gesture-generate-sentence', methods=['POST'])
+def gesture_generate_sentence():
+    """Tạo câu từ danh sách từ đã phát hiện bằng Gemini AI"""
+    try:
+        if not detected_words:
+            return jsonify({"success": False, "error": "Chưa có từ nào được phát hiện"}), 400
+        
+        # Lấy danh sách từ
+        words = [w['word'] for w in detected_words]
+        words_str = ', '.join(words)
+        
+        # Tạo prompt cải tiến để giữ nguyên thứ tự các từ, đảm bảo câu hoàn toàn tiếng Anh và sát nghĩa
+        prompt = f"""
+        From the following list of words (in chronological detection order): {words}
+        
+        Your task is to create ONE simple, concise, and contextually appropriate English sentence with the following MANDATORY requirements:
+        
+        1. You MUST use all words from the list in their exact form
+        2. You MUST MAINTAIN the exact order of appearance of the words in the resulting sentence, from beginning to end (this is the MOST IMPORTANT)
+        3. Add ONLY ESSENTIAL connecting words (if needed) between the given words to form a grammatically correct sentence
+        4. Keep the sentence as SIMPLE as possible - prefer adding fewer words rather than more
+        5. DO NOT add extra adjectives, adverbs, or descriptive phrases that change the core meaning
+        6. Return ONLY the resulting sentence, without any explanation or additional content
+        7. The sentence MUST be ENTIRELY in English, with NO Vietnamese words or phrases mixed in
+        8. The meaning of the sentence should closely reflect the likely intent of the detected words
+        
+        Example 1: If the word list is [i, love, you], the resulting sentence should simply be "I love you."
+        Example 2: If the word list is [eat, bread, go, home], the resulting sentence should be "I eat bread and go home."
+        """
+        
+        # Gọi Gemini API
+        response = model.generate_content(prompt)
+        generated_sentence = response.text.strip()
+        
+        print(f"🤖 Câu được tạo: {generated_sentence}")
+        print(f"📝 Từ các từ: {words_str}")
+        
+        return jsonify({
+            "success": True,
+            "sentence": generated_sentence,
+            "words_used": words,
+            "total_words": len(detected_words)
+        })
+        
+    except Exception as e:
+        print(f"❌ Lỗi tạo câu: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/gesture-clear-words', methods=['POST'])
+def gesture_clear_words():
+    """Xóa danh sách từ đã phát hiện"""
+    try:
+        global detected_words
+        detected_words = []
+        
+        print("🗑️ Đã xóa danh sách từ")
+        
+        return jsonify({
+            "success": True,
+            "message": "Đã xóa danh sách từ",
+            "total_words": 0
+        })
+        
+    except Exception as e:
+        print(f"❌ Lỗi xóa danh sách từ: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
 if __name__ == '__main__':
     # Tạo các thư mục cần thiết
     os.makedirs("audio_output", exist_ok=True)
@@ -357,6 +624,11 @@ if __name__ == '__main__':
     print("  - POST /api/test-voice       - Test giọng nói với mẫu")
     print("  - GET  /api/health           - Kiểm tra sức khỏe chi tiết")
     print("  - GET  /api/download-audio/<filename> - Tải xuống file âm thanh")
+    print("  - POST /api/gesture-detect   - Phát hiện ký hiệu từ hình ảnh")
+    print("  - POST /api/gesture-add-word - Thêm từ được phát hiện")
+    print("  - GET  /api/gesture-get-words - Lấy danh sách từ đã phát hiện")
+    print("  - POST /api/gesture-generate-sentence - Tạo câu từ các từ")
+    print("  - POST /api/gesture-clear-words - Xóa danh sách từ")
     
     print("\n🔧 Trạng thái Engine:")
     print("TTS Engines:", tts_service.get_available_engines())

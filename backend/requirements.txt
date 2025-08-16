@@ -24,6 +24,13 @@ pyaudio==0.2.11
 # ===== AUDIO PROCESSING =====
 pydub==0.25.1
 
+# ===== GESTURE RECOGNITION =====
+ultralytics>=8.0.0
+opencv-python==4.8.0.76
+google-generativeai==0.3.2
+Pillow>=8.0.0
+numpy>=1.21.0
+
 # ===== TEXT-TO-SPEECH OFFLINE =====
 pyttsx3==2.90
 
