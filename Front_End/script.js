@@ -907,6 +907,588 @@ function initializeDashboard() {
     // Khởi tạo Audio Player và Speech Recognition
     initializeAudioPlayer();
     initializeSpeechRecognition();
+    
+    // Khởi tạo Gesture Detection
+    initializeGestureDetection();
+}
+
+// ===== GESTURE DETECTION FUNCTIONALITY =====
+let videoStream = null;
+let detectionInterval = null;
+let isDetecting = false;
+let gestureVideo = null;
+let gestureCanvas = null;
+let gestureContext = null;
+let detectedWords = [];
+let currentSentence = '';
+
+function initializeGestureDetection() {
+    console.log('🤖 Khởi tạo chức năng phát hiện ký hiệu');
+    
+    // Tạo elements cho camera và detection
+    setupGestureUI();
+    
+    // Thiết lập event listeners
+    setupGestureEventListeners();
+}
+
+function setupGestureUI() {
+    const signToTextTab = document.getElementById('sign-to-text');
+    if (!signToTextTab) return;
+    
+    // Cập nhật HTML của sign-to-text tab
+    signToTextTab.innerHTML = `
+        <div class="input-section">
+            <h3>Camera phát hiện ký hiệu:</h3>
+            <div class="gesture-container">
+                <div class="video-container" id="videoContainer">
+                    <video id="gestureVideo" autoplay muted playsinline style="width: 100%; max-width: 640px; height: auto; border-radius: 10px; background: #000;"></video>
+                    <canvas id="gestureCanvas" style="display: none;"></canvas>
+                    <div class="detection-overlay" id="detectionOverlay">
+                        <div class="detection-info" id="detectionInfo">
+                            <div class="current-word" id="currentWord">Chưa phát hiện từ nào</div>
+                            <div class="confidence" id="confidence">Độ tin cậy: 0%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gesture-controls">
+                    <button class="btn btn-primary" id="startCameraBtn">Bật Camera</button>
+                    <button class="btn btn-secondary" id="stopCameraBtn" disabled>Tắt Camera</button>
+                </div>
+            </div>
+        </div>
+        <div class="output-section">
+            <h3>Kết quả phát hiện:</h3>
+            <div class="gesture-results">
+                <div class="detected-words-container">
+                    <h4>Từ đã phát hiện:</h4>
+                    <div class="detected-words" id="detectedWordsDisplay">
+                        <span class="no-words">Chưa có từ nào được phát hiện</span>
+                    </div>
+                </div>
+                <div class="generated-sentence-container">
+                    <h4>Câu hoàn chỉnh:</h4>
+                    <textarea class="text-input" id="generatedSentence" placeholder="Câu hoàn chỉnh sẽ xuất hiện tại đây..." readonly></textarea>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Thêm CSS styles cho gesture detection
+    const style = document.createElement('style');
+    style.textContent = `
+        .gesture-container {
+            text-align: center;
+        }
+        
+        .video-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        .detection-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .current-word {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .confidence {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .gesture-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .gesture-results {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .detected-words-container, .generated-sentence-container {
+            margin-bottom: 20px;
+        }
+        
+        .detected-words {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            min-height: 40px;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        
+        .word-tag {
+            background: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .word-tag .confidence-badge {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 11px;
+        }
+        
+        .no-words {
+            color: #666;
+            font-style: italic;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function setupGestureEventListeners() {
+    const startCameraBtn = document.getElementById('startCameraBtn');
+    const stopCameraBtn = document.getElementById('stopCameraBtn');
+    
+    if (startCameraBtn) {
+        startCameraBtn.addEventListener('click', startCamera);
+    }
+    
+    if (stopCameraBtn) {
+        stopCameraBtn.addEventListener('click', stopCamera);
+    }
+}
+
+async function startCamera() {
+    try {
+        console.log('📹 Bắt đầu camera...');
+        
+        const video = document.getElementById('gestureVideo');
+        const canvas = document.getElementById('gestureCanvas');
+        
+        if (!video || !canvas) {
+            console.error('❌ Không tìm thấy video hoặc canvas elements');
+            return;
+        }
+        
+        gestureVideo = video;
+        gestureCanvas = canvas;
+        gestureContext = canvas.getContext('2d');
+        
+        // Tự động xóa từ khi bắt đầu quay mới
+        await clearDetectedWords();
+        
+        // Yêu cầu quyền truy cập camera
+        videoStream = await navigator.mediaDevices.getUserMedia({
+            video: { width: 640, height: 480 }
+        });
+        
+        video.srcObject = videoStream;
+        
+        // Đợi video load
+        await new Promise((resolve) => {
+            video.onloadedmetadata = () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                resolve();
+            };
+        });
+        
+        // Cập nhật UI
+        updateGestureControls(true);
+        
+        // Bắt đầu detection
+        startDetection();
+        
+        console.log('✅ Camera đã được bắt đầu');
+        
+    } catch (error) {
+        console.error('❌ Lỗi bắt đầu camera:', error);
+        alert('Không thể truy cập camera. Vui lòng kiểm tra quyền truy cập!');
+    }
+}
+
+async function stopCamera() {
+    console.log('📹 Dừng camera...');
+    
+    // Dừng detection
+    stopDetection();
+    
+    // Tự động tạo câu khi tắt camera (nếu có từ)
+    if (detectedWords.length > 0) {
+        await generateSentence();
+    }
+    
+    // Dừng video stream
+    if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
+    }
+    
+    // Clear video
+    if (gestureVideo) {
+        gestureVideo.srcObject = null;
+    }
+    
+    // Cập nhật UI
+    updateGestureControls(false);
+    
+    console.log('✅ Camera đã được dừng');
+}
+
+function startDetection() {
+    if (isDetecting) return;
+    
+    console.log('🤖 Bắt đầu phát hiện ký hiệu...');
+    isDetecting = true;
+    
+    // Tăng tần suất phát hiện lên 5 lần/giây để nhạy hơn
+    detectionInterval = setInterval(captureAndDetect, 200);
+}
+
+function stopDetection() {
+    console.log('🤖 Dừng phát hiện ký hiệu...');
+    isDetecting = false;
+    
+    if (detectionInterval) {
+        clearInterval(detectionInterval);
+        detectionInterval = null;
+    }
+}
+
+async function captureAndDetect() {
+    if (!gestureVideo || !gestureCanvas || !gestureContext) return;
+    
+    try {
+        // Capture frame từ video
+        gestureContext.drawImage(gestureVideo, 0, 0, gestureCanvas.width, gestureCanvas.height);
+        
+        // Convert canvas to base64 với chất lượng cao hơn
+        const imageData = gestureCanvas.toDataURL('image/jpeg', 0.9);
+        
+        // Gửi đến backend để phát hiện
+        const response = await fetch('http://localhost:5000/api/gesture-detect', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ image: imageData })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Lấy tổng số từ đã phát hiện
+            const currentWordCount = detectedWords.length;
+            
+            // Kiểm tra từ đã phát hiện
+            if (result.detected_word) {
+                // Cập nhật UI overlay với thông tin chi tiết
+                updateDetectionOverlay(
+                    result.detected_word, 
+                    result.confidence, 
+                    result.hold_time || 0, 
+                    result.is_confirmed || false
+                );
+                
+                // Nếu có từ mới được thêm vào (số lượng từ thay đổi)
+                if (result.total_words > currentWordCount) {
+                    console.log('✅ Phát hiện từ mới:', result.confirmed_word, 'Confidence:', result.confidence);
+                    
+                    // Hiệu ứng nhấp nháy khi từ được xác nhận
+                    const detectionOverlay = document.getElementById('detectionOverlay');
+                    if (detectionOverlay) {
+                        detectionOverlay.classList.add('word-confirmed');
+                        setTimeout(() => {
+                            detectionOverlay.classList.remove('word-confirmed');
+                        }, 500);
+                    }
+                    
+                    // Cập nhật danh sách từ
+                    await updateWordList();
+                }
+            } else {
+                updateDetectionOverlay(null, 0, 0, false);
+            }
+        } else {
+            updateDetectionOverlay(null, 0, 0, false);
+            console.error('❌ Lỗi phát hiện:', result.error);
+        }
+        
+    } catch (error) {
+        console.error('❌ Lỗi phát hiện ký hiệu:', error);
+        updateDetectionOverlay(null, 0, 0, false);
+    }
+}
+
+function updateDetectionOverlay(word, confidence, holdTime = 0, isConfirmed = false) {
+    const currentWordEl = document.getElementById('currentWord');
+    const confidenceEl = document.getElementById('confidence');
+    const detectionInfo = document.getElementById('detectionInfo');
+    const holdThreshold = 0.6; // phải giống với server (0.6s)
+    
+    if (currentWordEl) {
+        if (word) {
+            currentWordEl.textContent = `Đang phát hiện: ${word}`;
+            
+            // Thêm thông tin về thời gian giữ nếu có
+            if (holdTime > 0) {
+                const holdPercentage = Math.min(100, (holdTime / holdThreshold) * 100).toFixed(0);
+                currentWordEl.textContent += ` (${holdPercentage}%)`;
+                
+                // Thêm hiệu ứng hiển thị tiến trình
+                if (detectionInfo) {
+                    // Tạo hoặc cập nhật progress bar
+                    let progressBar = document.getElementById('holdProgressBar');
+                    if (!progressBar) {
+                        progressBar = document.createElement('div');
+                        progressBar.id = 'holdProgressBar';
+                        progressBar.className = 'hold-progress';
+                        
+                        // Thêm styles vào <head> nếu chưa có
+                        if (!document.getElementById('detection-styles')) {
+                            const style = document.createElement('style');
+                            style.id = 'detection-styles';
+                            style.textContent = `
+                                .hold-progress {
+                                    height: 6px;
+                                    background-color: #FFC107;
+                                    border-radius: 3px;
+                                    margin-top: 5px;
+                                    transition: width 0.2s, background-color 0.3s;
+                                }
+                                
+                                .word-confirmed {
+                                    animation: pulse 0.5s;
+                                }
+                                
+                                @keyframes pulse {
+                                    0% { background-color: rgba(0, 0, 0, 0.7); }
+                                    50% { background-color: rgba(76, 175, 80, 0.8); }
+                                    100% { background-color: rgba(0, 0, 0, 0.7); }
+                                }
+                            `;
+                            document.head.appendChild(style);
+                        }
+                        
+                        detectionInfo.appendChild(progressBar);
+                    }
+                    
+                    // Cập nhật trạng thái progress bar
+                    progressBar.style.width = `${holdPercentage}%`;
+                    progressBar.style.backgroundColor = holdTime >= holdThreshold ? '#4CAF50' : '#FFC107';
+                }
+            }
+        } else {
+            currentWordEl.textContent = 'Chưa phát hiện từ nào';
+            
+            // Xóa progress bar nếu không phát hiện từ
+            const progressBar = document.getElementById('holdProgressBar');
+            if (progressBar) progressBar.remove();
+        }
+    }
+    
+    if (confidenceEl) {
+        confidenceEl.textContent = `Độ tin cậy: ${(confidence * 100).toFixed(1)}%`;
+    }
+    
+    // Thêm styles cho progress bar nếu chưa tồn tại
+    const styleId = 'progressBarStyles';
+    if (!document.getElementById(styleId)) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+            .hold-progress {
+                height: 4px;
+                background-color: #FFC107;
+                width: 0%;
+                transition: width 0.2s ease, background-color 0.3s ease;
+                border-radius: 2px;
+                margin-top: 5px;
+            }
+            .word-confirmed {
+                background-color: rgba(76, 175, 80, 0.8) !important;
+                transition: background-color 0.3s ease;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+async function addDetectedWord(word, confidence) {
+    try {
+        // Kiểm tra xem từ đã được thêm gần đây chưa (tránh duplicate)
+        const recentWord = detectedWords[detectedWords.length - 1];
+        if (recentWord && recentWord.word === word) {
+            return; // Bỏ qua nếu từ giống với từ cuối cùng
+        }
+        
+        // Gửi đến backend để thêm từ
+        const response = await fetch('http://localhost:5000/api/gesture-add-word', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                word: word, 
+                confidence: confidence 
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Cập nhật local array từ backend
+            await updateWordList();
+            console.log('✅ Đã thêm từ:', word);
+        }
+        
+    } catch (error) {
+        console.error('❌ Lỗi thêm từ:', error);
+    }
+}
+
+// Lấy và đồng bộ danh sách từ từ backend
+async function updateWordList() {
+    try {
+        const response = await fetch('http://localhost:5000/api/gesture-get-words');
+        const result = await response.json();
+        
+        if (result.success) {
+            // Cập nhật danh sách từ local từ backend
+            detectedWords = result.detailed_words || [];
+            
+            // Cập nhật UI
+            updateDetectedWordsDisplay();
+            updateGestureControls(videoStream !== null);
+        }
+    } catch (error) {
+        console.error('❌ Lỗi lấy danh sách từ:', error);
+    }
+}
+
+function updateDetectedWordsDisplay() {
+    const detectedWordsDisplay = document.getElementById('detectedWordsDisplay');
+    if (!detectedWordsDisplay) return;
+    
+    if (detectedWords.length === 0) {
+        detectedWordsDisplay.innerHTML = '<span class="no-words">Chưa có từ nào được phát hiện</span>';
+        return;
+    }
+    
+    const wordsHTML = detectedWords.map(item => `
+        <div class="word-tag">
+            ${item.word}
+            <span class="confidence-badge">${(item.confidence * 100).toFixed(0)}%</span>
+        </div>
+    `).join('');
+    
+    detectedWordsDisplay.innerHTML = wordsHTML;
+}
+
+async function generateSentence() {
+    if (detectedWords.length === 0) {
+        alert('Chưa có từ nào để tạo câu!');
+        return;
+    }
+    
+    try {
+        console.log('🤖 Tạo câu hoàn chỉnh từ:', detectedWords.map(w => w.word));
+        
+        const response = await fetch('http://localhost:5000/api/gesture-generate-sentence', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({})
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            const sentenceTextarea = document.getElementById('generatedSentence');
+            if (sentenceTextarea) {
+                sentenceTextarea.value = result.sentence;
+                currentSentence = result.sentence;
+            }
+            
+            console.log('✅ Câu được tạo:', result.sentence);
+            // Đã bỏ alert thông báo theo yêu cầu
+        } else {
+            console.error('❌ Lỗi tạo câu:', result.error);
+            alert('Không thể tạo câu: ' + result.error);
+        }
+        
+    } catch (error) {
+        console.error('❌ Lỗi tạo câu:', error);
+        alert('Lỗi kết nối khi tạo câu!');
+    }
+}
+
+async function clearDetectedWords() {
+    try {
+        const response = await fetch('http://localhost:5000/api/gesture-clear-words', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({})
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Clear local data
+            detectedWords = [];
+            currentSentence = '';
+            
+            // Cập nhật UI
+            updateDetectedWordsDisplay();
+            
+            const sentenceTextarea = document.getElementById('generatedSentence');
+            if (sentenceTextarea) {
+                sentenceTextarea.value = '';
+            }
+            
+            updateGestureControls(videoStream !== null);
+            
+            console.log('✅ Đã xóa danh sách từ');
+        }
+        
+    } catch (error) {
+        console.error('❌ Lỗi xóa danh sách từ:', error);
+    }
+}
+
+function updateGestureControls(cameraActive) {
+    const startCameraBtn = document.getElementById('startCameraBtn');
+    const stopCameraBtn = document.getElementById('stopCameraBtn');
+    
+    if (startCameraBtn) {
+        startCameraBtn.disabled = cameraActive;
+    }
+    
+    if (stopCameraBtn) {
+        stopCameraBtn.disabled = !cameraActive;
+    }
 }
 
 // ===== AUTHENTICATION FUNCTIONS =====
