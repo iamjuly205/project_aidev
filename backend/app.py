@@ -74,7 +74,7 @@ class MockYOLOModel:
 
 try:
     print("🤖 Đang tải YOLO model...")
-    yolo_model = YOLO('../../best.pt')  # Sửa đường dẫn để tìm file best.pt
+    yolo_model = YOLO('D:/project_aidev/backend/best.pt')  # Sửa đường dẫn để tìm file best.pt
     print("✅ YOLO model đã được tải thành công!")
 except Exception as e:
     print(f"⚠️ Không thể tải YOLO model: {e}")
