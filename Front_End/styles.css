@@ -1064,7 +1064,7 @@ body.dark-theme .social-icons a:hover {
     transition: all 0.3s ease;
     padding: 20px;
     border-radius: 50%;
-    background: #f8f9fa;
+/*    background: #f8f9fa;*/
     
 }
 
@@ -1195,8 +1195,8 @@ body.dark-theme .social-icons a:hover {
     right: 0;
     z-index: 1000;
     
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  /*  backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1); */
 }
 
 .logo {
@@ -1652,5 +1652,15 @@ body {
     flex-shrink: 0;
 }
 
+
+/* Bỏ gạch chân cho link trong phần tin tức */
+.news-grid a {
+    text-decoration: none;
+    color: inherit; /* Giữ nguyên màu chữ gốc */
+}
+
+.news-grid a:hover {
+    text-decoration: none;
+}
 
 
