@@ -169,22 +169,22 @@ function setDefaultVoiceOptionsData() {
     const voiceConfigs = {
         'vi': {
             female_voices: [
-                { id: 'voice1', name: 'Như', description: 'Giọng miền Bắc', voice_id: 'A5w1fw5x0uXded1LDvZp', language: 'vi' },
-                { id: 'voice2', name: 'Hà My', description: 'Giọng miền Nam', voice_id: 'RmcV9cAq1TByxNSgbii7', language: 'vi' }
+                { id: 'voice1', name: 'voice-nhu', description: 'voice-nhu-desc', voice_id: 'A5w1fw5x0uXded1LDvZp', language: 'vi' },
+                { id: 'voice2', name: 'voice-ha-my', description: 'voice-ha-my-desc', voice_id: 'RmcV9cAq1TByxNSgbii7', language: 'vi' }
             ],
             male_voices: [
-                { id: 'voice1', name: 'Việt Dũng', description: 'Giọng miền Bắc', voice_id: 'BUPPIXeDaJWBz696iXRS', language: 'vi' },
-                { id: 'voice2', name: 'Ly Hai', description: 'Giọng miền Nam', voice_id: '7hsfEc7irDn6E8br0qfw', language: 'vi' }
+                { id: 'voice1', name: 'voice-viet-dung', description: 'voice-viet-dung-desc', voice_id: 'BUPPIXeDaJWBz696iXRS', language: 'vi' },
+                { id: 'voice2', name: 'voice-ly-hai', description: 'voice-ly-hai-desc', voice_id: '7hsfEc7irDn6E8br0qfw', language: 'vi' }
             ]
         },
         'en': {
             female_voices: [
-                { id: 'voice1', name: 'Natasha', description: 'Young, energetic female voice', voice_id: '7NsaqHdLuKNFvEfjpUno', language: 'en' },
-                { id: 'voice2', name: 'Christina', description: 'Gentle, professional female voice', voice_id: '2qfp6zPuviqeCOZIE9RZ', language: 'en' }
+                { id: 'voice1', name: 'voice-natasha', description: 'voice-natasha-desc', voice_id: '7NsaqHdLuKNFvEfjpUno', language: 'en' },
+                { id: 'voice2', name: 'voice-christina', description: 'voice-christina-desc', voice_id: '2qfp6zPuviqeCOZIE9RZ', language: 'en' }
             ],
             male_voices: [
-                { id: 'voice1', name: 'Adam', description: 'Strong, confident male voice', voice_id: 'wAGzRVkxKEs8La0lmdrE', language: 'en' },
-                { id: 'voice2', name: 'Jon', description: 'Young, friendly male voice', voice_id: 'MFZUKuGQUsGJPQjTS4wC', language: 'en' }
+                { id: 'voice1', name: 'voice-adam', description: 'voice-adam-desc', voice_id: 'wAGzRVkxKEs8La0lmdrE', language: 'en' },
+                { id: 'voice2', name: 'voice-jon', description: 'voice-jon-desc', voice_id: 'MFZUKuGQUsGJPQjTS4wC', language: 'en' }
             ]
         }
     };
@@ -232,7 +232,12 @@ function updateVoiceSelectFromGender() {
     voices.forEach(voice => {
         const option = document.createElement('option');
         option.value = voice.voice_id;
-        option.textContent = `${voice.name} - ${voice.description}`;
+        
+        // Lấy tên và mô tả từ translations
+        const voiceName = translations[currentLanguage] && translations[currentLanguage][voice.name] ? translations[currentLanguage][voice.name] : voice.name;
+        const voiceDesc = translations[currentLanguage] && translations[currentLanguage][voice.description] ? translations[currentLanguage][voice.description] : voice.description;
+        
+        option.textContent = `${voiceName} - ${voiceDesc}`;
         voiceSelect.appendChild(option);
     });
     
@@ -800,6 +805,12 @@ function handleTextToSpeech() {
 // ===== DASHBOARD INITIALIZATION =====
 function initializeDashboard() {
     console.log('🔧 Khởi tạo dashboard với ElevenLabs');
+
+    // Cập nhật dashboard với ngôn ngữ hiện tại
+    updateDashboardLanguage(currentLanguage);
+    
+    // Cập nhật các option ngôn ngữ
+    updateLanguageOptions(currentLanguage);
 
     // Thiết lập các tab sidebar
     const sidebarTabs = document.querySelectorAll('.sidebar-tab');
@@ -1532,13 +1543,13 @@ function updateUIForLoggedInUser() {
         // Cập nhật nút đăng nhập để hiển thị tên người dùng
         const greeting = currentLanguage === 'vi' ? `Xin chào, ${currentUser.name}` : `Hello, ${currentUser.name}`;
         headerLoginBtn.textContent = greeting;
-        headerLoginBtn.style.background = '#4ecdc4';
+        headerLoginBtn.style.background = '#0ad35aff';
         
 
         // Cập nhật nút đăng ký thành đăng xuất
         const logoutText = currentLanguage === 'vi' ? 'Đăng Xuất' : 'Logout';
         headerRegisterBtn.textContent = logoutText;
-        headerRegisterBtn.style.background = '#ff6b6b';
+        headerRegisterBtn.style.background = '#0add62ff';
         
 
         // Xóa event listeners cũ và thêm mới
@@ -1687,7 +1698,53 @@ const translations = {
         'video-section-title': 'Video Giới Thiệu',
         'video-section-description': 'Xem các video hướng dẫn để hiểu cách sử dụng công cụ nhận diện ngôn ngữ ký hiệu của chúng tôi.',
         'news-section-title': 'Tin Tức & Bài Viết',
-        'news-section-description': 'Cập nhật những thông tin mới nhất và các bài viết hữu ích về ngôn ngữ ký hiệu và công nghệ AI.'
+        'news-section-description': 'Cập nhật những thông tin mới nhất và các bài viết hữu ích về ngôn ngữ ký hiệu và công nghệ AI.',
+        
+        // Dashboard translations
+        'sidebar-text-to-speech': 'Văn bản thành giọng nói',
+        'sidebar-speech-to-text': 'Giọng nói thành văn bản',
+        'sidebar-sign-to-text': 'Ký hiệu thành văn bản',
+        'text-input-title': 'Nhập văn bản cần chuyển đổi:',
+        'text-input-placeholder': 'Nhập văn bản của bạn tại đây...',
+        'gender-label': 'Giới tính:',
+        'gender-female': 'Nữ',
+        'gender-male': 'Nam',
+        'language-label': 'Ngôn ngữ:',
+        'voice-label': 'Giọng người đọc:',
+        'voice-loading': 'Đang tải...',
+        'audio-output-title': 'Âm thanh được tạo:',
+        'audio-status': 'Âm thanh sẽ được tạo ra tại đây',
+        'speech-input-title': 'Ghi âm giọng nói:',
+        'speech-status': 'Nhấn vào microphone để bắt đầu ghi âm',
+        'speech-output-title': 'Văn bản được chuyển đổi:',
+        'speech-output-placeholder': 'Văn bản sẽ xuất hiện tại đây...',
+        'download-text': 'Tải xuống văn bản',
+        'sign-input-title': 'Tải lên ảnh/video ngôn ngữ ký hiệu:',
+        'sign-status': 'Tải lên ảnh hoặc video để chuyển đổi',
+        'sign-output-title': 'Văn bản được nhận diện:',
+        'sign-output-placeholder': 'Văn bản được nhận diện sẽ xuất hiện tại đây...',
+        'upload-btn': 'Tải lên tệp',
+        'convert-btn': 'Chuyển đổi',
+        'download-btn': 'Tải xuống',
+        'footer-description': 'Công cụ AI tiên tiến hỗ trợ nhận diện ngôn ngữ ký hiệu, giúp kết nối cộng đồng người khiếm thính với thế giới xung quanh.',
+        
+        // Voice descriptions
+        'voice-nhu': 'Như',
+        'voice-nhu-desc': 'Giọng miền Bắc',
+        'voice-ha-my': 'Hà My',
+        'voice-ha-my-desc': 'Giọng miền Nam',
+        'voice-viet-dung': 'Việt Dũng',
+        'voice-viet-dung-desc': 'Giọng miền Bắc',
+        'voice-ly-hai': 'Ly Hai',
+        'voice-ly-hai-desc': 'Giọng miền Nam',
+        'voice-natasha': 'Natasha',
+        'voice-natasha-desc': 'Giọng nữ trẻ, năng động',
+        'voice-christina': 'Christina',
+        'voice-christina-desc': 'Giọng nữ dịu dàng, chuyên nghiệp',
+        'voice-adam': 'Adam',
+        'voice-adam-desc': 'Giọng nam mạnh mẽ, tự tin',
+        'voice-jon': 'Jon',
+        'voice-jon-desc': 'Giọng nam trẻ, thân thiện'
     },
     en: {
         'login': 'Login',
@@ -1712,7 +1769,53 @@ const translations = {
         'video-section-title': 'Introduction Video',
         'video-section-description': 'Watch tutorial videos to understand how to use our sign language recognition tool.',
         'news-section-title': 'News & Articles',
-        'news-section-description': 'Stay updated with the latest information and useful articles about sign language and AI technology.'
+        'news-section-description': 'Stay updated with the latest information and useful articles about sign language and AI technology.',
+        
+        // Dashboard translations
+        'sidebar-text-to-speech': 'Text to Speech',
+        'sidebar-speech-to-text': 'Speech to Text',
+        'sidebar-sign-to-text': 'Sign to Text',
+        'text-input-title': 'Enter text to convert:',
+        'text-input-placeholder': 'Enter your text here...',
+        'gender-label': 'Gender:',
+        'gender-female': 'Female',
+        'gender-male': 'Male',
+        'language-label': 'Language:',
+        'voice-label': 'Voice:',
+        'voice-loading': 'Loading...',
+        'audio-output-title': 'Generated Audio:',
+        'audio-status': 'Audio will be generated here',
+        'speech-input-title': 'Record voice:',
+        'speech-status': 'Click microphone to start recording',
+        'speech-output-title': 'Converted text:',
+        'speech-output-placeholder': 'Text will appear here...',
+        'download-text': 'Download text',
+        'sign-input-title': 'Upload sign language image/video:',
+        'sign-status': 'Upload image or video to convert',
+        'sign-output-title': 'Recognized text:',
+        'sign-output-placeholder': 'Recognized text will appear here...',
+        'upload-btn': 'Upload File',
+        'convert-btn': 'Convert',
+        'download-btn': 'Download',
+        'footer-description': 'Advanced AI tool supporting sign language recognition, helping connect the deaf community with the world around them.',
+        
+        // Voice descriptions
+        'voice-nhu': 'Như',
+        'voice-nhu-desc': 'Northern accent',
+        'voice-ha-my': 'Ha My',
+        'voice-ha-my-desc': 'Southern accent',
+        'voice-viet-dung': 'Viet Dung',
+        'voice-viet-dung-desc': 'Northern accent',
+        'voice-ly-hai': 'Ly Hai',
+        'voice-ly-hai-desc': 'Southern accent',
+        'voice-natasha': 'Natasha',
+        'voice-natasha-desc': 'Young, energetic female voice',
+        'voice-christina': 'Christina',
+        'voice-christina-desc': 'Gentle, professional female voice',
+        'voice-adam': 'Adam',
+        'voice-adam-desc': 'Strong, confident male voice',
+        'voice-jon': 'Jon',
+        'voice-jon-desc': 'Young, friendly male voice'
     }
 };
 
@@ -1752,7 +1855,7 @@ function translatePage(lang) {
     const languageToggle = document.getElementById('languageToggle');
     if (languageToggle) {
         if (lang === 'vi') {
-            languageToggle.setAttribute('data-tooltip', 'Tiếng Việt (VN) - Click để chuyển sang English');
+            languageToggle.setAttribute('data-tooltip', 'Tiếng Việt (VN) - Click để chuyển sang Tiếng Anh');
         } else {
             languageToggle.setAttribute('data-tooltip', 'English (US) - Click to switch to Vietnamese');
         }
@@ -1762,6 +1865,16 @@ function translatePage(lang) {
     if (isLoggedIn) {
         updateUIForLoggedInUser();
     }
+    
+    // Cập nhật dashboard nếu đang hiển thị
+    if (document.getElementById('dashboardPage') && document.getElementById('dashboardPage').style.display !== 'none') {
+        console.log('🔄 Cập nhật dashboard với ngôn ngữ mới');
+        // Dashboard đang hiển thị, cập nhật các elements
+        updateDashboardLanguage(lang);
+    }
+    
+    // Cập nhật các option trong dropdown ngôn ngữ
+    updateLanguageOptions(lang);
 }
 
 function updateLogoTooltip() {
@@ -1772,6 +1885,63 @@ function updateLogoTooltip() {
         } else {
             logoHome.setAttribute('data-tooltip', 'Return to home');
         }
+    }
+}
+
+function updateDashboardLanguage(lang) {
+    console.log(`🔄 Cập nhật dashboard với ngôn ngữ: ${lang}`);
+    
+    // Cập nhật các elements trong dashboard
+    const dashboardElements = document.querySelectorAll('#dashboardPage [data-translate]');
+    dashboardElements.forEach(element => {
+        const key = element.getAttribute('data-translate');
+        if (translations[lang] && translations[lang][key]) {
+            element.textContent = translations[lang][key];
+        }
+    });
+    
+    // Cập nhật placeholders
+    const dashboardPlaceholders = document.querySelectorAll('#dashboardPage [data-translate-placeholder]');
+    dashboardPlaceholders.forEach(element => {
+        const key = element.getAttribute('data-translate-placeholder');
+        if (translations[lang] && translations[lang][key]) {
+            element.placeholder = translations[lang][key];
+        }
+    });
+    
+    // Cập nhật voice options
+    updateVoiceOptions(lang);
+    
+    console.log(`✅ Đã cập nhật ${dashboardElements.length} elements và ${dashboardPlaceholders.length} placeholders trong dashboard`);
+}
+
+function updateLanguageOptions(lang) {
+    console.log(`🌐 Cập nhật các option ngôn ngữ sang: ${lang}`);
+    
+    const languageSelect = document.getElementById('languageSelect');
+    if (languageSelect) {
+        const options = languageSelect.querySelectorAll('option');
+        
+        options.forEach(option => {
+            const value = option.value;
+            if (value === 'vi') {
+                option.textContent = lang === 'en' ? 'Vietnamese' : 'Tiếng Việt';
+            } else if (value === 'en') {
+                option.textContent = lang === 'en' ? 'English' : 'Tiếng Anh';
+            }
+        });
+        
+        console.log(`✅ Đã cập nhật ${options.length} options trong dropdown ngôn ngữ`);
+    }
+}
+
+function updateVoiceOptions(lang) {
+    console.log(`🎵 Cập nhật voice options sang: ${lang}`);
+    
+    // Cập nhật voice options nếu đang có data
+    if (voiceOptionsData) {
+        updateVoiceSelectFromGender();
+        console.log('✅ Đã cập nhật voice options');
     }
 }
 
