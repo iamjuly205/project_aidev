@@ -1678,3 +1678,44 @@ body {
 }
 
 
+/* === Marquee (seamless, không nền) === */
+:root{
+    --marquee-height: 36px;
+    --marquee-speed: 20s;   /* nhanh/chậm tuỳ chỉnh */
+    --marquee-gap: 2rem;    /* khoảng cách giữa 2 lần lặp */
+}
+
+/* ...existing code... */
+
+.marquee-container {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100vw;
+    background: rgba(30, 30, 30, 0.7);
+    z-index: 9999;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.marquee-content {
+    display: inline-block;
+    white-space: nowrap;
+    color: #fff;
+    font-size: 1rem;
+    padding: 6px 0;
+    font-family: inherit;
+    letter-spacing: 1px;
+    min-width: 100vw;
+    animation: marquee 18s linear infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
