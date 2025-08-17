@@ -15,8 +15,9 @@ load_dotenv()
 class TextToSpeechService:
     def __init__(self):
         """Khởi tạo dịch vụ Text-to-Speech với ElevenLabs và Google Cloud APIs"""
-        # ElevenLabs API configuration
-        self.elevenlabs_api_key = os.getenv('ELEVENLABS_API_KEY')
+        # ElevenLabs API configuration - Hỗ trợ nhiều API keys
+        self.elevenlabs_api_keys = self._load_elevenlabs_api_keys()
+        self.current_api_key_index = 0
         self.elevenlabs_base_url = "https://api.elevenlabs.io/v1"
         
         # Google Cloud API configuration
@@ -28,31 +29,39 @@ class TextToSpeechService:
             'en': 'English'
         }
         
-        # Cấu hình giọng nói ElevenLabs - VOICE ID CHÍNH XÁC
+        # Cấu hình giọng nói ElevenLabs - PHÂN BỔ CHO TỪNG API KEY + GOOGLE FALLBACK
         self.voice_configs = {
             'vi': {  # Tiếng Việt - VOICES THỰC SỰ LÀ TIẾNG VIỆT
                 'female': {
                     'voice1': {
                         'voice_id': 'A5w1fw5x0uXded1LDvZp',  
                         'name': 'Như',
-                        'description': 'Giọng miền Bắc'
+                        'description': 'Giọng miền Bắc',
+                        'api_key_index': 0,  # API key main
+                        'fallback_to_google': False  # Không fallback
                     },
                     'voice2': {
                         'voice_id': 'RmcV9cAq1TByxNSgbii7',  
                         'name': 'Hà My',
-                        'description': 'Giọng miền Nam'
+                        'description': 'Giọng miền Nam',
+                        'api_key_index': 1,  # API key main
+                        'fallback_to_google': True  # Fallback sang Google nếu lỗi
                     }
                 },
                 'male': {
                     'voice1': {
                         'voice_id': 'BUPPIXeDaJWBz696iXRS',  
                         'name': 'Việt Dũng',
-                        'description': 'Giọng miền Bắc'
+                        'description': 'Giọng miền Bắc',
+                        'api_key_index': 0,  # API key main
+                        'fallback_to_google': True  # Fallback sang Google nếu lỗi
                     },
                     'voice2': {
                         'voice_id': '7hsfEc7irDn6E8br0qfw',  
                         'name': 'Ly Hai',
-                        'description': 'Giọng miền Nam'
+                        'description': 'Giọng miền Nam',
+                        'api_key_index': 1,  # API key main
+                        'fallback_to_google': True  # Fallback sang Google nếu lỗi
                     }
                 }
             },
@@ -61,24 +70,32 @@ class TextToSpeechService:
                     'voice1': {
                         'voice_id': '7NsaqHdLuKNFvEfjpUno',  
                         'name': 'Natasha',
-                        'description': 'Young, energetic female voice'
+                        'description': 'Young, energetic female voice',
+                        'api_key_index': 0,  # API key 1
+                        'fallback_to_google': True  # Fallback sang Google nếu lỗi
                     },
                     'voice2': {
                         'voice_id': '2qfp6zPuviqeCOZIE9RZ',  
                         'name': 'Christina',
-                        'description': 'Gentle, professional female voice'
+                        'description': 'Gentle, professional female voice',
+                        'api_key_index': 1,  # API key 1
+                        'fallback_to_google': True  # Fallback sang Google nếu lỗi
                     }
                 },
                 'male': {
                     'voice1': {
                         'voice_id': 'wAGzRVkxKEs8La0lmdrE',  
                         'name': 'Adam',
-                        'description': 'Strong, confident male voice'
+                        'description': 'Strong, confident male voice',
+                        'api_key_index': 1,  # API key 1
+                        'fallback_to_google': True  # Fallback sang Google nếu lỗi
                     },
                     'voice2': {
                         'voice_id': 'MFZUKuGQUsGJPQjTS4wC',  
                         'name': 'Jon',
-                        'description': 'Young, friendly male voice'
+                        'description': 'Young, friendly male voice',
+                        'api_key_index': 1,  # API key 1
+                        'fallback_to_google': True  # Fallback sang Google nếu lỗi
                     }
                 }
             }
@@ -92,15 +109,66 @@ class TextToSpeechService:
         
         print("✅ Dịch vụ Text-to-Speech với ElevenLabs và Google Cloud APIs đã được khởi tạo")
         print("🔧 Voice ID đã được cập nhật để đảm bảo đúng ngôn ngữ")
-        if self.elevenlabs_api_key:
-            print("✅ ElevenLabs API Key đã được cấu hình")
+        if self.elevenlabs_api_keys:
+            print(f"✅ Đã tải {len(self.elevenlabs_api_keys)} ElevenLabs API keys")
         else:
-            print("⚠️ ElevenLabs API Key chưa được cấu hình, sẽ sử dụng Google Cloud TTS")
+            print("⚠️ Không có ElevenLabs API key nào được cấu hình, sẽ sử dụng Google Cloud TTS")
         
         if self.google_api_key:
             print("✅ Google Cloud API Key đã được cấu hình")
         else:
             print("⚠️ Google Cloud API Key chưa được cấu hình")
+
+    def _load_elevenlabs_api_keys(self):
+        """Tải nhiều ElevenLabs API keys từ biến môi trường"""
+        api_keys = []
+        
+        # API key chính
+        main_key = os.getenv('ELEVENLABS_API_KEY')
+        if main_key:
+            api_keys.append(main_key)
+        
+        # Các API keys bổ sung
+        for i in range(1, 10):  # Hỗ trợ tối đa 10 API keys
+            additional_key = os.getenv(f'ELEVENLABS_API_KEY_{i}')
+            if additional_key:
+                api_keys.append(additional_key)
+        
+        if api_keys:
+            print(f"✅ Đã tải {len(api_keys)} ElevenLabs API keys")
+        else:
+            print("⚠️ Không có ElevenLabs API key nào được cấu hình")
+        
+        return api_keys
+    
+    def _get_next_api_key(self):
+        """Lấy API key tiếp theo theo round-robin"""
+        if not self.elevenlabs_api_keys:
+            return None
+        
+        api_key = self.elevenlabs_api_keys[self.current_api_key_index]
+        self.current_api_key_index = (self.current_api_key_index + 1) % len(self.elevenlabs_api_keys)
+        return api_key
+    
+    def _get_api_key_for_voice(self, voice_id: str) -> str:
+        """Lấy API key phù hợp cho voice ID cụ thể"""
+        if not self.elevenlabs_api_keys:
+            return None
+        
+        # Tìm voice trong config để lấy api_key_index
+        for language in self.voice_configs:
+            for gender in self.voice_configs[language]:
+                for voice_key, config in self.voice_configs[language][gender].items():
+                    if config['voice_id'] == voice_id:
+                        api_key_index = config.get('api_key_index', 0)
+                        if api_key_index < len(self.elevenlabs_api_keys):
+                            return self.elevenlabs_api_keys[api_key_index]
+                        else:
+                            # Fallback về round-robin nếu index vượt quá
+                            return self._get_next_api_key()
+        
+        # Nếu không tìm thấy, sử dụng round-robin
+        return self._get_next_api_key()
 
     def convert_text_to_speech(self, text: str, language: str = 'vi', voice: str = 'female', voice_id: str = None) -> Dict[str, Any]:
         """Chuyển văn bản thành giọng nói bằng ElevenLabs API hoặc Google Cloud TTS"""
@@ -109,7 +177,7 @@ class TextToSpeechService:
             preferred_engine = os.getenv('TTS_ENGINE', 'auto').lower()
             
             # Thử ElevenLabs trước nếu có API key
-            if self.elevenlabs_api_key and (preferred_engine == 'elevenlabs' or preferred_engine == 'auto'):
+            if self.elevenlabs_api_keys and (preferred_engine == 'elevenlabs' or preferred_engine == 'auto'):
                 try:
                     return self._convert_with_elevenlabs(text, language, voice, voice_id)
                 except Exception as e:
@@ -131,8 +199,8 @@ class TextToSpeechService:
     def _convert_with_elevenlabs(self, text: str, language: str = 'vi', voice: str = 'female', voice_id: str = None) -> Dict[str, Any]:
         """Chuyển văn bản thành giọng nói bằng ElevenLabs API"""
         try:
-            if not self.elevenlabs_api_key:
-                raise Exception("ElevenLabs API Key chưa được cấu hình")
+            if not self.elevenlabs_api_keys:
+                raise Exception("ElevenLabs API Keys chưa được cấu hình")
             
             # Kiểm tra đầu vào
             if not text.strip():
@@ -175,13 +243,28 @@ class TextToSpeechService:
                 print(f"✅ Sử dụng voice_id {voice_id} ({voice_info['name']}) cho ngôn ngữ {language}")
                 print(f"ℹ️  Voice này thuộc ngôn ngữ {voice_language}, nhưng sẽ được sử dụng cho {language}")
             
+            # Sử dụng API key phù hợp cho voice ID
+            api_key = self._get_api_key_for_voice(voice_id)
+            if api_key:
+                # Tìm tên của API key
+                key_names = ['Main', 'Additional 1', 'Additional 2', 'Additional 3']
+                try:
+                    key_index = self.elevenlabs_api_keys.index(api_key)
+                    key_name = key_names[key_index] if key_index < len(key_names) else f'Key {key_index + 1}'
+                    print(f"🔑 Sử dụng API key: {key_name} (index {key_index + 1}/{len(self.elevenlabs_api_keys)})")
+                except ValueError:
+                    print(f"🔑 Sử dụng API key: Unknown (round-robin)")
+            else:
+                print(f"⚠️  Không có API key khả dụng")
+                raise Exception("Không có ElevenLabs API key khả dụng")
+            
             # Chuẩn bị request
             url = f"{self.elevenlabs_base_url}/text-to-speech/{voice_id}"
             
             headers = {
                 "Accept": "audio/mpeg",
                 "Content-Type": "application/json",
-                "xi-api-key": self.elevenlabs_api_key
+                "xi-api-key": api_key
             }
             
             data = {
@@ -205,8 +288,19 @@ class TextToSpeechService:
                 try:
                     error_detail = response.json()
                     error_msg += f" - {error_detail.get('detail', 'Unknown error')}"
+                    
+                    # Kiểm tra xem có phải lỗi voice_limit_reached không
+                    if 'voice_limit_reached' in str(error_detail):
+                        # Kiểm tra xem voice này có được cấu hình fallback sang Google không
+                        if voice_info.get('fallback_to_google', False):
+                            print(f"🔄 Voice {voice_info['name']} gặp lỗi giới hạn, chuyển sang Google Cloud TTS")
+                            return self.convert_text_to_speech_google_cloud(text, language, voice)
+                        else:
+                            print(f"⚠️ Voice {voice_info['name']} gặp lỗi giới hạn và không được cấu hình fallback")
+                    
                 except:
                     error_msg += f" - {response.text}"
+                
                 raise Exception(error_msg)
             
             # Lưu âm thanh vào file
@@ -407,7 +501,7 @@ class TextToSpeechService:
     def get_available_engines(self) -> Dict[str, bool]:
         """Lấy trạng thái các TTS engines có sẵn"""
         return {
-            "elevenlabs": self.elevenlabs_api_key is not None,
+            "elevenlabs": self.elevenlabs_api_keys is not None,
             "google_cloud": self.google_api_key is not None
         }
     

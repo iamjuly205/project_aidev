@@ -24,7 +24,7 @@ tts_service = TextToSpeechService()
 stt_service = SpeechToTextService()
 
 # Khởi tạo Gemini AI và YOLO cho gesture detection
-genai.configure(api_key="AIzaSyC7ibsJvR85BLS14ozgyvOTjHOehHemPWA")
+genai.configure(api_key="AIzaSyDTJLUUe_0wdoF-DeZ97VGSjOTOYBdnAa0")
 generation_config = {
     "temperature": 1,
     "top_p": 0.95,
@@ -48,10 +48,10 @@ hold_time_threshold = 0.6  # giây cần giữ để xác nhận cử chỉ (gi�
 class MockYOLOModel:
     def __init__(self):
         self.names = {
-            0: 'bread', 1: 'like', 2: 'home', 3: 'you', 4: 'i', 
-            5: 'listen', 6: 'sleep', 7: 'go', 8: 'drink', 9: 'no',
-            10: 'yes', 11: 'love', 12: 'goodbye', 13: 'thank', 14: 'hello',
-            15: 'eat', 16: 'read'
+            0: 'book', 1: 'bread', 2: 'drink', 3: 'eat', 4: 'go',
+            5: 'goodbye', 6: 'hello', 7: 'home', 8: 'i', 9: 'like',
+            10: 'listen', 11: 'love', 12: 'no', 13: 'read', 14: 'sleep',
+            15: 'thank', 16: 'want', 17: 'yes', 18: 'you'
         }
         
     def predict(self, source, save=False):
@@ -74,7 +74,7 @@ class MockYOLOModel:
 
 try:
     print("🤖 Đang tải YOLO model...")
-    yolo_model = YOLO('../../best.pt')  # Sửa đường dẫn để tìm file best.pt
+    yolo_model = YOLO('D:/project_aidev/backend/best.pt')  # Sửa đường dẫn để tìm file best.pt
     print("✅ YOLO model đã được tải thành công!")
 except Exception as e:
     print(f"⚠️ Không thể tải YOLO model: {e}")
@@ -377,6 +377,7 @@ def health_check():
         # Kiểm tra biến môi trường
         env_status = {
             "ELEVENLABS_API_KEY": bool(os.getenv('ELEVENLABS_API_KEY')),
+            "ELEVENLABS_API_KEYS_COUNT": len([k for k in [os.getenv('ELEVENLABS_API_KEY')] + [os.getenv(f'ELEVENLABS_API_KEY_{i}') for i in range(1, 10)] if k]),
             "GOOGLE_API_KEY": bool(os.getenv('GOOGLE_API_KEY')),
             "GOOGLE_APPLICATION_CREDENTIALS": bool(os.getenv('GOOGLE_APPLICATION_CREDENTIALS')),
             "TTS_ENGINE": os.getenv('TTS_ENGINE', 'auto'),
