@@ -1457,18 +1457,26 @@ body.dark-theme .social-icons a:hover {
 /* Khung video */
 .modal-content {
     position: relative;
-    background: transparent;
+    background: black;        /* nền đen bao quanh video */
     padding: 0;
-    border-radius: 10px;
-    max-width: 80%;
-    max-height: 80%;
+    border-radius: 12px;
+    width: 80vw;              /* khung rộng 80% màn hình */
+    height: 80dvh;            /* khung cao 60% màn hình */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
 .modal video {
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
+    width: 100%;              /* video co vừa chiều ngang khung */
+    height: auto;             /* giữ tỉ lệ gốc */
+    max-height: 100%;         /* không vượt quá chiều cao khung */
+    object-fit: contain;      /* giữ nguyên tỉ lệ, không crop */
+    border-radius: 8px;
 }
+
+
 
 /* Nút đóng */
 .close-btn {
