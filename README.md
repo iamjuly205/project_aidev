@@ -315,9 +315,9 @@ Dự án này được phân phối dưới giấy phép MIT. Xem file `LICENSE`
 
 ## 📞 Liên Hệ
 
-- **Email**: [your-email@example.com]
-- **GitHub**: [your-github-username]
-- **Website**: [your-website.com]
+- **Email**: nguyenleanhduy9412@gmail.com
+- **GitHub**: https://github.com/iamjuly205
+
 
 ## 🙏 Lời Cảm Ơn
 
