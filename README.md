@@ -1,4 +1,4 @@
-# 🚀 Project AIDEV - Công Cụ Hỗ Trợ Nhận Diện Ngôn Ngữ Ký Hiệu
+﻿# 🚀 Project AIDEV - Công Cụ Hỗ Trợ Nhận Diện Ngôn Ngữ Ký Hiệu
 
 ## 📖 Giới Thiệu
 
@@ -38,7 +38,13 @@
 - **Chế Độ Tối/Sáng**: Tùy chỉnh giao diện theo sở thích
 - **Video Hướng Dẫn**: Tích hợp video demo và hướng dẫn sử dụng
 
+
+
+
+
+
 ## 🏗️ Kiến Trúc Hệ Thống
+
 
 ```
 project_aidev/
@@ -216,7 +222,7 @@ GET /api/voices
 }
 ```
 
-## 🎯 Cách Sử Dụng
+## ?? Cách Sử Dụng
 
 ### 1. **Nhận Diện Cử Chỉ**
 - Mở camera hoặc tải video lên
