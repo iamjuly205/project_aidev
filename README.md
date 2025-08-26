@@ -37,12 +37,7 @@
 - **Đa Ngôn Ngữ**: Giao diện tiếng Việt và tiếng Anh
 - **Chế Độ Tối/Sáng**: Tùy chỉnh giao diện theo sở thích
 - **Video Hướng Dẫn**: Tích hợp video demo và hướng dẫn sử dụng
-
-
-
-
-
-
+![Demo giao diện](Image/demo1.png)
 ## 🏗️ Kiến Trúc Hệ Thống
 
 
