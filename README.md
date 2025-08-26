@@ -38,6 +38,11 @@
 - **Chế Độ Tối/Sáng**: Tùy chỉnh giao diện theo sở thích
 - **Video Hướng Dẫn**: Tích hợp video demo và hướng dẫn sử dụng
 ![Demo giao diện](Image/demo1.png)
+![Demo giao diện](Image/demo2.png)
+![Demo giao diện](Image/demo3.png)
+![Demo giao diện](Image/demo4.png)
+![Demo giao diện](Image/demo5.png)
+![Demo giao diện](Image/demo6.png)
 ## 🏗️ Kiến Trúc Hệ Thống
 
 
